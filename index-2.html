@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ZIYOU QUEST 2</title>
+<style>
+:root{
+  --bg:#07111d;
+  --panel:#0d1d2d;
+  --panel2:#13283c;
+  --cyan:#31d7ff;
+  --violet:#9b5cff;
+  --pink:#ff4fa3;
+  --red:#ff4d63;
+  --gold:#ffc94a;
+  --white:#eafaff;
+  --muted:#7db5c7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at top,#10243a 0,#07111d 55%,#02070c 100%);font-family:Arial,Helvetica,sans-serif;color:var(--white)}
+body{display:grid;place-items:center;padding:10px}
+.wrap{
+  width:min(1100px,100%);
+  background:linear-gradient(180deg,#0b1725,#09111c);
+  border:2px solid #1c4e68;
+  border-radius:22px;
+  box-shadow:0 0 45px #00b7ff22, inset 0 0 30px #00d9ff0b;
+  padding:12px;
+}
+.topbar{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+.title{
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:1px;
+  font-size:clamp(22px,4vw,42px);
+  text-shadow:0 0 14px #31d7ff55;
+}
+.title b{color:var(--pink)}
+.hud{
+  display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap
+}
+.chip{
+  padding:7px 11px;border:1px solid #2a6a88;border-radius:12px;background:#0e2234cc;
+  box-shadow:inset 0 0 16px #22cfff0b;font-weight:800;font-size:14px
+}
+.hearts{color:#ff6b81;letter-spacing:2px}
+.goal{text-align:right;color:#9bdbea;font-weight:700;font-size:14px}
+.gamebox{
+  position:relative;
+  border:2px solid #27637e;
+  border-radius:18px;
+  overflow:hidden;
+  background:#07111d;
+}
+canvas{
+  display:block;width:100%;height:auto;aspect-ratio:16/10;
+  touch-action:none;
+}
+.overlay{
+  position:absolute;inset:0;display:none;place-items:center;background:#02070ccc;padding:18px
+}
+.overlay.show{display:grid}
+.card{
+  width:min(540px,92%);
+  background:linear-gradient(180deg,#10263a,#0a1725);
+  border:2px solid var(--cyan);
+  border-radius:18px;
+  padding:24px;
+  text-align:center;
+  box-shadow:0 0 40px #31d7ff33;
+}
+.card h2{margin:0 0 12px;font-size:clamp(26px,5vw,46px)}
+.code{
+  display:block;
+  width:100%;
+  max-width:100%;
+  margin:12px auto;
+  padding:10px 12px;
+  border:2px solid var(--gold);
+  border-radius:10px;
+  color:var(--gold);
+  font:900 clamp(18px,4vw,34px) monospace;
+  letter-spacing:.5px;
+  background:#251c081f;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.end{margin-top:10px;color:var(--muted);letter-spacing:2px;font-weight:900}
+.controls{
+  display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-top:10px
+}
+.hint{font-size:13px;color:#a7cad7}
+.joystick{
+  width:152px;height:152px;border-radius:50%;
+  border:2px solid #3b7d99;background:#0b2233cc;
+  position:relative;touch-action:none;user-select:none;
+  box-shadow:inset 0 0 28px #31d7ff1c,0 0 20px #31d7ff12;
+}
+.joystick::before,.joystick::after{
+  content:"";position:absolute;background:#31708a55;left:50%;top:50%;transform:translate(-50%,-50%)
+}
+.joystick::before{width:2px;height:78%}
+.joystick::after{width:78%;height:2px}
+.stick{
+  width:58px;height:58px;border-radius:50%;
+  position:absolute;left:47px;top:47px;
+  background:radial-gradient(circle at 35% 30%,#4be5ff,#176081);
+  border:2px solid #a9f3ff;
+  box-shadow:0 0 18px #31d7ff66;
+  pointer-events:none;
+}
+.btn{
+  border:1px solid #3b7d99;background:#0f2b3d;color:white;border-radius:13px;
+  font:900 20px Arial;box-shadow:inset 0 0 20px #31d7ff16;cursor:pointer
+}
+.btn:active{transform:scale(.97)}
+.restart{padding:12px 16px;font-size:13px}
+
+.dog-alert{
+  position:absolute;
+  pointer-events:none;
+  color:#fff;
+  font:900 12px Arial;
+  text-shadow:0 2px 5px #000;
+}
+
+.status{
+  margin-top:8px;padding:8px 12px;border-radius:12px;background:#0b1f30;border:1px solid #234f64;
+  text-align:center;color:#bcecff;font-weight:700;font-size:14px
+}
+@media(max-width:700px){
+  body{padding:4px}.wrap{padding:7px;border-radius:12px}
+  .topbar{grid-template-columns:1fr}.goal{text-align:center}.title{text-align:center}
+  .controls{grid-template-columns:1fr;justify-items:center}.hint{text-align:center}
+  .card{width:min(94vw,540px);padding:16px}
+  .code{font-size:clamp(16px,6vw,24px)}
+}
+@media(max-width:430px) and (orientation:portrait){
+  .title{font-size:22px}
+  .chip{font-size:12px;padding:6px 8px}
+  .goal{font-size:12px}
+  .card{padding:14px}
+  .card h2{font-size:28px}
+  .card p{font-size:14px}
+  .code{font-size:18px;letter-spacing:0}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="topbar">
+    <div class="title">ZIYOU QUEST <b>2</b></div>
+    <div class="hud">
+      <div class="chip hearts" id="hearts">♥♥♥</div>
+      <div class="chip">🔑 <span id="keyState">0</span>/1</div>
+      <div class="chip">⏱ <span id="timer">00:00</span></div>
+      <div class="chip" id="dogState">🐕 AVEC TOI</div>
+    </div>
+    <div class="goal">Clé à l’opposé du coffre : récupère-la d’abord.</div>
+  </div>
+
+  <div class="gamebox">
+    <canvas id="game" width="800" height="500"></canvas>
+
+    <div class="overlay" id="victory">
+      <div class="card">
+        <h2 id="resultTitle">VICTOIRE</h2>
+        <p id="resultText"></p>
+        <div class="code" id="secretCode" style="display:none">perch'industry</div>
+        <div class="end" id="endMarker">— FIN DE LA PARTIE —</div>
+        <br>
+        <div id="resultButtons">
+          <button class="btn restart" id="again">RESTART</button>
+          <button class="btn restart" id="quit" style="display:none;margin-left:8px">QUITTER LE JEU</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="dead">
+      <div class="card">
+        <h2>ÉCHEC</h2>
+        <p>Reprise automatique...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Trouve la clé. Le coffre reste verrouillé sans elle.</div>
+
+  <div class="controls">
+    <div class="hint">Clavier : flèches / ZQSD / WASD · Mobile : joystick analogique</div>
+    <div class="joystick" id="joystick" aria-label="Joystick tactile">
+      <div class="stick" id="stick"></div>
+    </div>
+    <button class="btn restart" id="restart">RESTART</button>
+  </div>
+</main>
+
+<script>
+(() => {
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const heartsEl=document.getElementById("hearts");
+const keyEl=document.getElementById("keyState");
+const timerEl=document.getElementById("timer");
+const statusEl=document.getElementById("status");
+const victoryEl=document.getElementById("victory");
+const deadEl=document.getElementById("dead");
+const dogStateEl=document.getElementById("dogState");
+const resultTitleEl=document.getElementById("resultTitle");
+const resultTextEl=document.getElementById("resultText");
+const secretCodeEl=document.getElementById("secretCode");
+const quitBtn=document.getElementById("quit");
+
+const W=800,H=500;
+const P={
+  bg:"#07111d", floor:"#102338", grid:"#173750", wall:"#1f405a",
+  cyan:"#31d7ff", violet:"#9b5cff", pink:"#ff4fa3", red:"#ff4d63",
+  gold:"#ffc94a", white:"#eafaff", shadow:"#02070c"
+};
+
+let startTime=performance.now();
+let mode="play";
+let deathTimer=null;
+
+const player={x:95,y:405,r:15,hp:3,speed:185,inv:0};
+const dog={x:68,y:425,r:15,following:true,down:false};
+let dogTrail=[];
+const keyItem={x:88,y:82,r:12,taken:false};
+const chest={x:700,y:395,w:48,h:38,open:false};
+
+const walls=[
+  {x:0,y:0,w:800,h:25},{x:0,y:475,w:800,h:25},{x:0,y:0,w:25,h:500},{x:775,y:0,w:25,h:500},
+  {x:160,y:95,w:150,h:30},{x:160,y:95,w:30,h:150},
+  {x:360,y:55,w:30,h:180},
+  {x:470,y:165,w:180,h:30},
+  {x:600,y:165,w:30,h:130},
+  {x:235,y:315,w:160,h:30},
+  {x:460,y:350,w:30,h:125}
+];
+
+const spikes=[
+  {x:205,y:130,w:34,h:70},
+  {x:280,y:260,w:80,h:30},
+  {x:520,y:205,w:70,h:30},
+  {x:500,y:395,w:80,h:30}
+];
+
+// Lasers: active/off cycle.
+const lasers=[
+  {x1:60,y1:235,x2:330,y2:235,period:1800,on:1120,offset:0},
+  {x1:410,y1:280,x2:730,y2:280,period:1600,on:980,offset:420},
+  {x1:430,y1:85,x2:430,y2:250,period:1500,on:900,offset:150},
+  {x1:675,y1:210,x2:675,y2:455,period:1700,on:1050,offset:700}
+];
+
+const drones=[
+  {x:120,y:285,r:15,vx:145,min:70,max:330},
+  {x:545,y:90,r:15,vx:165,min:430,max:730},
+  {x:420,y:430,r:15,vx:-155,min:120,max:620}
+];
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function circleRect(cx,cy,r,o){
+  const nx=clamp(cx,o.x,o.x+o.w),ny=clamp(cy,o.y,o.y+o.h);
+  const dx=cx-nx,dy=cy-ny; return dx*dx+dy*dy<r*r;
+}
+function dist(ax,ay,bx,by){return Math.hypot(ax-bx,ay-by)}
+function laserActive(l,t){return ((t+l.offset)%l.period)<l.on}
+function pointSegDist(px,py,x1,y1,x2,y2){
+  const vx=x2-x1,vy=y2-y1,wx=px-x1,wy=py-y1;
+  const c1=vx*wx+vy*wy,c2=vx*vx+vy*vy;
+  let b=c2?c1/c2:0;b=clamp(b,0,1);
+  const bx=x1+b*vx,by=y1+b*vy;return Math.hypot(px-bx,py-by)
+}
+
+function updateHud(){
+  heartsEl.textContent="♥".repeat(player.hp)+"♡".repeat(3-player.hp);
+  keyEl.textContent=keyItem.taken?1:0;
+  dogStateEl.textContent=dog.down ? "🐕 À TERRE" : "🐕 AVEC TOI";
+  dogStateEl.style.color=dog.down ? "#ff9a76" : "#eafaff";
+}
+
+function reset(){
+  clearTimeout(deathTimer);
+  mode="play";
+  player.x=95;player.y=405;player.hp=3;player.inv=0;
+  dog.x=68;dog.y=425;dogTrail=[];dog.following=true;dog.down=false;
+  keyItem.taken=false;chest.open=false;
+  drones[0].x=120;drones[0].vx=145;
+  drones[1].x=545;drones[1].vx=165;
+  drones[2].x=420;drones[2].vx=-155;
+  startTime=performance.now();
+  victoryEl.classList.remove("show");
+  deadEl.classList.remove("show");
+  secretCodeEl.style.display="none";
+  quitBtn.style.display="none";
+  statusEl.textContent="Trouve la clé. Le coffre reste verrouillé sans elle.";
+  updateHud();
+}
+
+function hurt(msg){
+  if(mode!=="play"||player.inv>0)return;
+  player.hp--;
+  player.inv=.9;
+
+  // À chaque vie perdue, le chien tombe là où il se trouve
+  // et cesse de suivre jusqu'à ce que le joueur revienne le chercher.
+  if(player.hp>0){
+    dog.down=true;
+    dog.following=false;
+    dogTrail=[];
+    statusEl.textContent=msg+" Ton chien est tombé : retourne le chercher !";
+  }else{
+    statusEl.textContent=msg;
+  }
+
+  updateHud();
+
+  if(player.hp<=0){
+    mode="dead";deadEl.classList.add("show");
+    deathTimer=setTimeout(reset,1100);
+  }
+}
+
+const keys=new Set();
+addEventListener("keydown",e=>{keys.add(e.key.toLowerCase()); if(["arrowup","arrowdown","arrowleft","arrowright"].includes(e.key.toLowerCase())) e.preventDefault()},{passive:false});
+addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));
+
+let touchDir={x:0,y:0};
+const joystick=document.getElementById("joystick");
+const stick=document.getElementById("stick");
+let joyPointer=null;
+
+function updateJoystick(e){
+  const r=joystick.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let dx=e.clientX-cx, dy=e.clientY-cy;
+  const max=r.width*.32;
+  const len=Math.hypot(dx,dy);
+  if(len>max){dx=dx/len*max;dy=dy/len*max}
+  touchDir={x:dx/max,y:dy/max};
+  stick.style.transform=`translate(${dx}px,${dy}px)`;
+}
+function releaseJoystick(){
+  joyPointer=null;
+  touchDir={x:0,y:0};
+  stick.style.transform="translate(0px,0px)";
+}
+joystick.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  joyPointer=e.pointerId;
+  joystick.setPointerCapture?.(e.pointerId);
+  updateJoystick(e);
+});
+joystick.addEventListener("pointermove",e=>{
+  if(e.pointerId===joyPointer){e.preventDefault();updateJoystick(e)}
+});
+["pointerup","pointercancel","lostpointercapture"].forEach(ev=>{
+  joystick.addEventListener(ev,e=>{
+    if(joyPointer===null || e.pointerId===joyPointer) releaseJoystick();
+  });
+});
+
+document.getElementById("restart").onclick=reset;
+document.getElementById("again").onclick=reset;
+
+function quitGame(){
+  try{ window.close(); }catch(e){}
+  setTimeout(()=>{
+    document.body.innerHTML=`
+      <div style="min-height:100vh;display:grid;place-items:center;background:#07111d;color:#eafaff;font-family:Arial,sans-serif;text-align:center;padding:24px">
+        <div>
+          <div style="font-size:64px">🐕</div>
+          <h1>ZIYOU QUEST 2 terminé</h1>
+          <p>Tu peux fermer cet onglet ou revenir à la page précédente.</p>
+        </div>
+      </div>`;
+  },120);
+}
+quitBtn.onclick=quitGame;
+
+function intendedDir(){
+  let x=touchDir.x,y=touchDir.y;
+  if(keys.has("arrowleft")||keys.has("q")||keys.has("a"))x-=1;
+  if(keys.has("arrowright")||keys.has("d"))x+=1;
+  if(keys.has("arrowup")||keys.has("z")||keys.has("w"))y-=1;
+  if(keys.has("arrowdown")||keys.has("s"))y+=1;
+  if(x||y){const l=Math.hypot(x,y);x/=l;y/=l}
+  return{x,y}
+}
+function collidesWalls(x,y){
+  return walls.some(w=>circleRect(x,y,player.r,w));
+}
+function movePlayer(dx,dy,dt){
+  let nx=player.x+dx*player.speed*dt;
+  if(!collidesWalls(nx,player.y))player.x=nx;
+  let ny=player.y+dy*player.speed*dt;
+  if(!collidesWalls(player.x,ny))player.y=ny;
+  player.x=clamp(player.x,player.r+25,W-player.r-25);
+  player.y=clamp(player.y,player.r+25,H-player.r-25);
+}
+
+function update(dt,now){
+  if(mode!=="play")return;
+  if(player.inv>0)player.inv-=dt;
+
+  const d=intendedDir();
+  movePlayer(d.x,d.y,dt);
+
+  if(dog.following && !dog.down){
+    dogTrail.push({x:player.x,y:player.y});
+    if(dogTrail.length>36)dogTrail.shift();
+    const target=dogTrail[Math.max(0,dogTrail.length-25)];
+    if(target){
+      dog.x+=(target.x-dog.x)*Math.min(1,dt*6);
+      dog.y+=(target.y-dog.y)*Math.min(1,dt*6);
+    }
+  }else if(dog.down){
+    // Revenir au contact du chien le remet sur pattes.
+    if(dist(player.x,player.y,dog.x,dog.y)<player.r+dog.r+15){
+      dog.down=false;
+      dog.following=true;
+      dogTrail=[];
+      for(let i=0;i<25;i++)dogTrail.push({x:player.x,y:player.y});
+      statusEl.textContent="Ton chien est reparti avec toi !";
+      updateHud();
+    }
+  }
+
+  drones.forEach(dr=>{
+    dr.x+=dr.vx*dt;
+    if(dr.x<dr.min){dr.x=dr.min;dr.vx=Math.abs(dr.vx)}
+    if(dr.x>dr.max){dr.x=dr.max;dr.vx=-Math.abs(dr.vx)}
+    if(dist(player.x,player.y,dr.x,dr.y)<player.r+dr.r+3)hurt("Un drone t'a percuté !");
+  });
+
+  spikes.forEach(s=>{if(circleRect(player.x,player.y,player.r,s))hurt("Les pics t'ont touché !")});
+
+  lasers.forEach(l=>{
+    if(laserActive(l,now) && pointSegDist(player.x,player.y,l.x1,l.y1,l.x2,l.y2)<player.r+4)hurt("Mauvais timing : laser !");
+  });
+
+  if(!keyItem.taken && dist(player.x,player.y,keyItem.x,keyItem.y)<player.r+keyItem.r+8){
+    keyItem.taken=true;updateHud();statusEl.textContent="Clé récupérée ! Maintenant, atteins le coffre.";
+  }
+
+  if(dist(player.x,player.y,chest.x,chest.y)<player.r+34){
+    if(!keyItem.taken){
+      statusEl.textContent="Le coffre est verrouillé. Il te manque la clé.";
+    }else{
+      chest.open=true;
+      const elapsed=(now-startTime)/1000;
+      mode="victory";
+      victoryEl.classList.add("show");
+
+      if(dog.down || !dog.following){
+        resultTitleEl.textContent="PRESQUE...";
+        resultTextEl.textContent="Tu as oublié quelque chose derrière toi. Retourne chercher ton chien et recommence.";
+        secretCodeEl.style.display="none";
+        quitBtn.style.display="none";
+        statusEl.textContent="Le chien manque à l'arrivée.";
+      }else if(elapsed>10){
+        resultTitleEl.textContent="TROP LENT";
+        resultTextEl.textContent="Tu as gagné avec ton chien, mais il faut terminer en 10 secondes ou moins pour obtenir le code secret.";
+        secretCodeEl.style.display="none";
+        quitBtn.style.display="none";
+        statusEl.textContent="Objectif suivant : moins de 10 secondes.";
+      }else{
+        resultTitleEl.textContent="VICTOIRE";
+        resultTextEl.textContent="Clé récupérée, chien avec toi, et moins de 10 secondes. Code secret obtenu :";
+        secretCodeEl.style.display="block";
+        quitBtn.style.display="inline-block";
+        statusEl.textContent="Victoire parfaite !";
+      }
+    }
+  }
+
+  const secs=Math.floor((now-startTime)/1000);
+  timerEl.textContent=String(Math.floor(secs/60)).padStart(2,"0")+":"+String(secs%60).padStart(2,"0");
+}
+
+function drawRounded(x,y,w,h,r,fill,stroke=null){
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,r);
+  ctx.fillStyle=fill;ctx.fill();
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
+}
+
+function draw(now){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=P.floor;ctx.fillRect(0,0,W,H);
+
+  // grid
+  ctx.strokeStyle=P.grid;ctx.lineWidth=1;
+  for(let x=25;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=25;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+
+  // subtle floor panels
+  for(let y=45;y<460;y+=100){
+    for(let x=45;x<760;x+=100){
+      ctx.fillStyle="#0c1d2e";ctx.fillRect(x,y,42,42);
+      ctx.strokeStyle="#21435a";ctx.strokeRect(x,y,42,42);
+    }
+  }
+
+  walls.forEach(w=>{
+    drawRounded(w.x,w.y,w.w,w.h,8,P.wall,"#32708e");
+    ctx.fillStyle="#2fd7ff22";ctx.fillRect(w.x+5,w.y+5,Math.max(0,w.w-10),4);
+  });
+
+  spikes.forEach(s=>{
+    ctx.fillStyle="#a8c7d3";
+    const count=Math.floor(s.w/16)||1;
+    for(let x=s.x;x<s.x+s.w;x+=16){
+      for(let y=s.y;y<s.y+s.h;y+=22){
+        ctx.beginPath();ctx.moveTo(x+2,y+18);ctx.lineTo(x+8,y+2);ctx.lineTo(x+14,y+18);ctx.fill();
+      }
+    }
+  });
+
+  lasers.forEach(l=>{
+    const on=laserActive(l,now);
+    ctx.strokeStyle=on?P.red:"#7f203033";
+    ctx.lineWidth=on?4:2;
+    ctx.shadowColor=on?P.red:"transparent";ctx.shadowBlur=on?14:0;
+    ctx.beginPath();ctx.moveTo(l.x1,l.y1);ctx.lineTo(l.x2,l.y2);ctx.stroke();
+    ctx.shadowBlur=0;
+    [ [l.x1,l.y1],[l.x2,l.y2] ].forEach(([x,y])=>{
+      ctx.fillStyle=on?P.pink:"#563344";ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();
+    });
+  });
+
+  drones.forEach(dr=>{
+    ctx.shadowColor=P.violet;ctx.shadowBlur=14;
+    ctx.fillStyle="#1b2542";ctx.beginPath();ctx.arc(dr.x,dr.y,dr.r,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=P.violet;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=P.pink;ctx.fillRect(dr.x-4,dr.y-4,8,8);
+  });
+
+  if(!keyItem.taken){
+    ctx.shadowColor=P.gold;ctx.shadowBlur=18;
+    ctx.strokeStyle=P.gold;ctx.lineWidth=5;
+    ctx.beginPath();ctx.arc(keyItem.x,keyItem.y,8,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(keyItem.x+8,keyItem.y);ctx.lineTo(keyItem.x+26,keyItem.y);ctx.stroke();
+    ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(keyItem.x+20,keyItem.y);ctx.lineTo(keyItem.x+20,keyItem.y+8);ctx.stroke();
+    ctx.shadowBlur=0;
+  }
+
+  // chest
+  ctx.shadowColor=P.gold;ctx.shadowBlur=chest.open?25:12;
+  drawRounded(chest.x-chest.w/2,chest.y-chest.h/2,chest.w,chest.h,7,"#5b3611",P.gold);
+  ctx.fillStyle=P.gold;ctx.fillRect(chest.x-4,chest.y-3,8,10);
+  if(chest.open){
+    ctx.fillStyle="#8a5517";ctx.fillRect(chest.x-chest.w/2,chest.y-chest.h/2-12,chest.w,12);
+  }
+  ctx.shadowBlur=0;
+
+  // dog companion — silhouette volontairement plus lisible
+  ctx.save();
+  ctx.translate(dog.x,dog.y);
+  if(dog.down) ctx.rotate(Math.PI/2);
+
+  // ombre
+  ctx.fillStyle="#02070c66";
+  ctx.beginPath();ctx.ellipse(0,15,22,7,0,0,Math.PI*2);ctx.fill();
+
+  // queue recourbée
+  ctx.strokeStyle="#d8873f";ctx.lineWidth=7;ctx.lineCap="round";
+  ctx.beginPath();ctx.arc(-16,-1,12,1.15*Math.PI,2.15*Math.PI);ctx.stroke();
+
+  // corps allongé
+  ctx.fillStyle="#d8873f";
+  ctx.beginPath();ctx.ellipse(-1,3,20,12,0,0,Math.PI*2);ctx.fill();
+
+  // ventre / poitrail
+  ctx.fillStyle="#f4d6aa";
+  ctx.beginPath();ctx.ellipse(7,7,8,8,0,0,Math.PI*2);ctx.fill();
+
+  // pattes bien visibles
+  ctx.fillStyle="#b66b34";
+  ctx.fillRect(-12,11,6,12);
+  ctx.fillRect(7,11,6,12);
+  ctx.fillStyle="#f4d6aa";
+  ctx.fillRect(-12,19,6,4);
+  ctx.fillRect(7,19,6,4);
+
+  // cou
+  ctx.fillStyle="#c77738";
+  ctx.beginPath();ctx.ellipse(14,-2,9,10,0,0,Math.PI*2);ctx.fill();
+
+  // tête avec museau
+  ctx.fillStyle="#df9147";
+  ctx.beginPath();ctx.arc(20,-11,13,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#f4d6aa";
+  ctx.beginPath();ctx.ellipse(29,-8,8,6,0,0,Math.PI*2);ctx.fill();
+
+  // deux oreilles triangulaires
+  ctx.fillStyle="#7b4729";
+  ctx.beginPath();ctx.moveTo(10,-18);ctx.lineTo(13,-34);ctx.lineTo(21,-21);ctx.fill();
+  ctx.beginPath();ctx.moveTo(22,-22);ctx.lineTo(31,-33);ctx.lineTo(31,-17);ctx.fill();
+
+  // œil et truffe
+  ctx.fillStyle="#101820";
+  ctx.beginPath();ctx.arc(24,-13,2.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(35,-9,3,0,Math.PI*2);ctx.fill();
+
+  // collier rouge + médaille
+  ctx.strokeStyle="#ff4d63";ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(11,-3);ctx.lineTo(23,1);ctx.stroke();
+  ctx.fillStyle="#ffc94a";
+  ctx.beginPath();ctx.arc(18,2,3,0,Math.PI*2);ctx.fill();
+
+  // indication quand il est à terre
+  if(dog.down){
+    ctx.rotate(-Math.PI/2);
+    ctx.fillStyle="#ffcf5a";
+    ctx.font="900 20px Arial";
+    ctx.textAlign="center";
+    ctx.fillText("!",0,-34);
+  }
+
+  ctx.restore();  // player
+  ctx.shadowColor=P.cyan;ctx.shadowBlur=player.inv>0?20:8;
+  ctx.fillStyle="#1aa7d9";ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=P.white;ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle="#10243a";ctx.beginPath();ctx.arc(player.x,player.y-7,8,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+}
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.035,(now-last)/1000);last=now;
+  update(dt,now);draw(now);
+  requestAnimationFrame(loop);
+}
+updateHud();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
