@@ -26,13 +26,13 @@ body{
   overflow:hidden;
 }
 .wrap{
-  width:min(1100px,100%);
-  max-height:98vh;
+  width:min(900px,94vw);
+  max-height:94vh;
   background:linear-gradient(180deg,#0b1725,#09111c);
   border:2px solid #1c4e68;
   border-radius:22px;
   box-shadow:0 0 45px #00b7ff22, inset 0 0 30px #00d9ff0b;
-  padding:12px;
+  padding:8px;
 }
 .topbar{
   display:grid;
@@ -45,7 +45,7 @@ body{
   font-weight:900;
   font-style:italic;
   letter-spacing:1px;
-  font-size:clamp(22px,4vw,42px);
+  font-size:clamp(20px,3vw,34px);
   text-shadow:0 0 14px #31d7ff55;
 }
 .title b{color:var(--pink)}
@@ -53,11 +53,11 @@ body{
   display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap
 }
 .chip{
-  padding:7px 11px;border:1px solid #2a6a88;border-radius:12px;background:#0e2234cc;
-  box-shadow:inset 0 0 16px #22cfff0b;font-weight:800;font-size:14px
+  padding:5px 8px;border:1px solid #2a6a88;border-radius:12px;background:#0e2234cc;
+  box-shadow:inset 0 0 16px #22cfff0b;font-weight:800;font-size:12px
 }
 .hearts{color:#ff6b81;letter-spacing:2px}
-.goal{text-align:right;color:#9bdbea;font-weight:700;font-size:14px}
+.goal{text-align:right;color:#9bdbea;font-weight:700;font-size:12px}
 .gamebox{
   position:relative;
   border:2px solid #27637e;
@@ -69,7 +69,7 @@ canvas{
   display:block;
   width:100%;
   height:auto;
-  max-height:68vh;
+  max-height:56vh;
   aspect-ratio:16/10;
   object-fit:contain;
   touch-action:none;
@@ -105,11 +105,11 @@ canvas{
 }
 .end{margin-top:10px;color:var(--muted);letter-spacing:2px;font-weight:900}
 .controls{
-  display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-top:6px
+  display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;margin-top:4px
 }
 .hint{font-size:13px;color:#a7cad7}
 .joystick{
-  width:152px;height:152px;border-radius:50%;
+  width:118px;height:118px;border-radius:50%;
   border:2px solid #3b7d99;background:#0b2233cc;
   position:relative;touch-action:none;user-select:none;
   box-shadow:inset 0 0 28px #31d7ff1c,0 0 20px #31d7ff12;
@@ -120,8 +120,8 @@ canvas{
 .joystick::before{width:2px;height:78%}
 .joystick::after{width:78%;height:2px}
 .stick{
-  width:58px;height:58px;border-radius:50%;
-  position:absolute;left:47px;top:47px;
+  width:44px;height:44px;border-radius:50%;
+  position:absolute;left:35px;top:35px;
   background:radial-gradient(circle at 35% 30%,#4be5ff,#176081);
   border:2px solid #a9f3ff;
   box-shadow:0 0 18px #31d7ff66;
@@ -143,8 +143,57 @@ canvas{
 }
 
 .status{
-  margin-top:5px;padding:6px 10px;border-radius:12px;background:#0b1f30;border:1px solid #234f64;
+  margin-top:4px;padding:5px 8px;border-radius:12px;background:#0b1f30;border:1px solid #234f64;
   text-align:center;color:#bcecff;font-weight:700;font-size:13px
+}
+
+
+@media (min-width:701px){
+  .wrap{
+    width:min(900px,94vw);
+    padding:8px;
+  }
+  .gamebox{
+    width:100%;
+    max-width:860px;
+    margin:0 auto;
+  }
+  canvas{
+    max-height:56vh;
+  }
+  .topbar{
+    margin-bottom:4px;
+  }
+  .controls{
+    margin-top:4px;
+  }
+  .joystick{
+    width:110px;
+    height:110px;
+  }
+  .stick{
+    width:42px;
+    height:42px;
+    left:32px;
+    top:32px;
+  }
+}
+@media (min-width:701px) and (max-height:800px){
+  .wrap{width:min(820px,92vw)}
+  .gamebox{max-width:780px}
+  canvas{max-height:50vh}
+  .title{font-size:26px}
+  .chip{font-size:11px;padding:4px 7px}
+  .goal{font-size:11px}
+  .joystick{width:96px;height:96px}
+  .stick{width:38px;height:38px;left:27px;top:27px}
+}
+@media (min-width:701px) and (max-height:680px){
+  .wrap{width:min(760px,90vw)}
+  .gamebox{max-width:720px}
+  canvas{max-height:45vh}
+  .controls{gap:4px}
+  .status{font-size:11px;padding:4px 7px}
 }
 
 @media (min-width:701px) and (max-height:820px){
