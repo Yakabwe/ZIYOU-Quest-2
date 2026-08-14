@@ -27,7 +27,7 @@ body{
 }
 .wrap{
   width:min(900px,94vw);
-  max-height:94vh;
+  max-height:none;
   background:linear-gradient(180deg,#0b1725,#09111c);
   border:2px solid #1c4e68;
   border-radius:22px;
@@ -276,10 +276,39 @@ canvas{
   #resultButtons{width:100%;justify-content:center}
   #resultButtons .btn{margin:4px !important}
 }
+
+/* --- FIT ÉCRAN PC : tout le jeu est réduit d'un seul bloc --- */
+@media (min-width:701px){
+  html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden !important;
+  }
+  body{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:0 !important;
+  }
+  #gameShell{
+    width:900px !important;
+    max-width:none !important;
+    max-height:none !important;
+    margin:0 !important;
+    transform-origin:center center;
+    flex:0 0 auto;
+  }
+  #gameShell canvas{
+    width:100% !important;
+    max-height:none !important;
+    height:auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
-<main class="wrap">
+<main class="wrap" id="gameShell">
   <div class="topbar">
     <div class="title">ZIYOU QUEST <b>2</b></div>
     <div class="hud">
@@ -288,7 +317,7 @@ canvas{
       <div class="chip">⏱ <span id="timer">00:00</span></div>
       <div class="chip" id="dogState">🐕 AVEC TOI</div>
     </div>
-    <div class="goal">Clé à l’opposé du coffre : récupère-la d’abord.</div>
+    <div class="goal"></div>
   </div>
 
   <div class="gamebox">
@@ -767,6 +796,36 @@ function loop(now){
 }
 updateHud();
 requestAnimationFrame(loop);
+
+
+function fitWholeGameToScreen(){
+  const shell=document.getElementById("gameShell");
+  if(!shell)return;
+
+  // On téléphone, on garde le responsive mobile normal.
+  if(window.innerWidth<=700){
+    shell.style.transform="none";
+    return;
+  }
+
+  // Mesure sans transformation pour obtenir la vraie taille complète.
+  shell.style.transform="none";
+
+  const rect=shell.getBoundingClientRect();
+  const availableW=Math.max(320,window.innerWidth-24);
+  const availableH=Math.max(320,window.innerHeight-24);
+
+  // Réduction UNIQUEMENT si nécessaire.
+  const scale=Math.min(1,availableW/rect.width,availableH/rect.height);
+
+  shell.style.transform=`scale(${scale})`;
+}
+
+window.addEventListener("resize",fitWholeGameToScreen);
+window.addEventListener("orientationchange",()=>setTimeout(fitWholeGameToScreen,100));
+window.addEventListener("load",()=>setTimeout(fitWholeGameToScreen,50));
+
+fitWholeGameToScreen();
 })();
 </script>
 </body>
